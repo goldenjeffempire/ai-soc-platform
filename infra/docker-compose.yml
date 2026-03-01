@@ -92,3 +92,25 @@ services:
 volumes:
   pgdata:
   osdata:
+
+  ingestion-fastapi:
+    build:
+      context: ../services/ingestion-fastapi
+    environment:
+      LOG_LEVEL: INFO
+      INGEST_JWT_SECRET: dev_only_change_me
+      INGEST_JWT_ISSUER: ai-soc-platform
+      INGEST_JWT_AUDIENCE: log-agent
+      KAFKA_BOOTSTRAP: kafka:9092
+      KAFKA_TOPIC_RAW: logs.raw
+      REDIS_URL: redis://redis:6379/0
+      REPLAY_WINDOW_SEC: 300
+      RATE_LIMIT_PER_MINUTE: 600
+      MAX_BODY_BYTES: 256000
+    ports:
+      - "8001:8000"
+    depends_on:
+      kafka:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
